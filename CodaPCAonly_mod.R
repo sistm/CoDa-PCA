@@ -1,3 +1,9 @@
+# CoDa PCA
+# R functions associated to "Representation Learning of Compositional Data", NIPS18
+# Methods, Algorithms and Python implementation developed by R Nock, C S Ong and K Sun, Data61, CSIRO, Australia
+# R version coded by J Rouar, verified by M Avalos and B Xu, SISTM, INRIA and INSERM U1219, France  
+# 06/10/2018
+
 library(compositions)
 library(tensr)
 
