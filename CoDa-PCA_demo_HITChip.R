@@ -1,0 +1,64 @@
+# CoDa PCA
+# R functions associated to "Representation Learning of Compositional Data", NIPS18
+# Methods, Algorithms and Python implementation developed by R Nock, C S Ong and K Sun, Data61, CSIRO, Australia
+# R version coded by J Rouar, verified by M Avalos and B Xu, SISTM, INRIA and INSERM U1219, France  
+# 20/10/2018
+
+source("CoDa-PCA.R")
+
+# .-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-
+# Demo: CoDa-PCA on Atelas data from HITChip
+options(stringsAsFactors=F)
+data  = read.table('atlas.csv',        header = TRUE, sep = ',')
+group = read.table('atlasfactors.csv', header = TRUE, sep = ',')
+
+# Parameters for CoDa-PCA
+loss         = 'coda'
+dimension    = 25
+method       = 'Adam'
+cv.criterion = 10 ^ (-7)
+Beta1        = 0.9
+Beta2        = 0.999
+eps          = 10 ^ (-3)
+epochs       = 50
+eps_adam     = 10 ^ (-3)
+ratioBatches = 1 / 3
+max_iter     = 600
+cycles       = 2
+lrate        = 0.005
+
+# CoDa-PCA running
+result.codapca = gPCA(
+  data,
+  epochs       = epochs,
+  ratioBatches = ratioBatches,
+  method       = 'Adam',
+  lrate        = lrate,
+  dimension    = dimension,
+  cv.criterion = cv.criterion,
+  cycles       = cycles,
+  max_iter     = max_iter,
+  loss         = loss,
+  Beta1        = Beta1,
+  Beta2        = Beta2,
+  eps          = eps,
+  eps_adam     = eps_adam
+)
+
+result.clrpca  = prcomp(clr_transform(data), center = TRUE, scale = TRUE)
+result.pca     = prcomp(data, center = TRUE, scale = TRUE)
+
+# Plotting .-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.
+par(mfrow = c(1, 3)) 
+
+DNA_extraction_method = group$DNA_extraction_method
+DNA_extraction_method[is.na(DNA_extraction_method)]<-"NA"
+
+clist = match(DNA_extraction_method, unique(DNA_extraction_method))
+
+plot(result.codapca$A[,1], result.codapca$A[,2], col=clist, xlab = 'PC1', ylab = 'PC2',main = 'Atlas by CoDa-PCA')
+plot(result.clrpca$x[,1],  result.clrpca$x[,2],  col=clist, xlab = 'PC1', ylab = 'PC2',main = 'Atlas by CLR-PCA')
+plot(result.pca$x[,1],     result.pca$x[,2],     col=clist, xlab = 'PC1', ylab = 'PC2',main = 'Atlas by PCA')
+legend('bottomleft', unique(DNA_extraction_method), col=1:length(unique(DNA_extraction_method)), pch=21)
+
+
